@@ -132,6 +132,11 @@ function createDoc() {
   })
 }
 
+function openQuickEntryModal() {
+  showQuickEntryModal.value = true
+  quickEntryProps.value = { doctype: 'CRM Doc' }  // 👈 your doctype
+  nextTick(() => (show.value = false))
+}
 
 onMounted(() => {
   doc.doc = {}
