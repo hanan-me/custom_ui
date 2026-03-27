@@ -50,16 +50,29 @@
 
 
 <script setup>
+// import EditIcon from '@/components/Icons/EditIcon.vue'
+// import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
+// import { usersStore } from '@/stores/users'
+// import { statusesStore } from '@/stores/statuses'
+// import { isMobileView } from '@/composables/settings'
+// import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
+// import { useDocument } from '@/data/document'
+// import { capture } from '@/telemetry'
+// import { Switch, createResource } from 'frappe-ui'
+// import { computed, ref, onMounted, nextTick, watch } from 'vue'
+// import { useRouter } from 'vue-router'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
+import { sessionStore } from '@/stores/session'
 import { isMobileView } from '@/composables/settings'
 import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
-import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
-import { Switch, createResource } from 'frappe-ui'
-import { computed, ref, onMounted, nextTick, watch } from 'vue'
+import { createResource } from 'frappe-ui'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { useDocument } from '@/data/document'
+import { computed, onMounted, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
 const show = defineModel()
