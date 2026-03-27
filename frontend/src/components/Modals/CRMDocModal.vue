@@ -3,6 +3,7 @@
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
+          <!-- New Code for Edit Icon -->
           <div>
             <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
               {{ __('Create CRM Doc') }}
@@ -21,6 +22,7 @@
             </Button>
           </div>
         </div>
+        <!-- END -->
 
         <!-- Dynamic Fields -->
         <FieldLayout
@@ -60,6 +62,8 @@
 // import { Switch, createResource } from 'frappe-ui'
 // import { computed, ref, onMounted, nextTick, watch } from 'vue'
 // import { useRouter } from 'vue-router'
+
+// New Code for Edit Icon 
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import { usersStore } from '@/stores/users'
@@ -79,6 +83,8 @@ const session = sessionStore()
 const isManager = computed(() => {
   return session.user?.roles?.includes('System Manager')
 })
+
+ // END 
   
 const show = defineModel()
 const router = useRouter()
@@ -132,11 +138,13 @@ function createDoc() {
   })
 }
 
+// New Code for Edit Icon   
 function openQuickEntryModal() {
   showQuickEntryModal.value = true
   quickEntryProps.value = { doctype: 'CRM Doc' }  // 👈 your doctype
   nextTick(() => (show.value = false))
 }
+// END  
 
 onMounted(() => {
   doc.doc = {}
