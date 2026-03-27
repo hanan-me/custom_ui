@@ -70,16 +70,15 @@ def create_crm_doc(args):
     doc.id = args.get("id")
     doc.name1 = args.get("name1")
     doc.type1 = args.get("type1")
-    doc.custom_msg = args.get("custom_msg")
-    doc.custom_city = args.get("custom_city")
+    doc.address = args.get("address")
+    doc.city = args.get("city")
     
-    land_rows = args.get("custom_land_details") 
+    land_rows = args.get("item") 
     if land_rows:
         for row in land_rows:
-            doc.append("custom_land_details", {
-                "land_id": row.get("land_id"),
-                "land_name": row.get("land_name"),
-                "area": row.get("area")
+            doc.append("item", {
+                "item": row.get("item"),
+                "city": row.get("city"),
             })
             
     doc.insert(ignore_permissions=True)
