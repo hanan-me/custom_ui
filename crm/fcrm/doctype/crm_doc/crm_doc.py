@@ -70,7 +70,20 @@ def create_crm_doc(args):
     doc.id = args.get("id")
     doc.name1 = args.get("name1")
     doc.type1 = args.get("type1")
+    doc.custom_msg = args.get("custom_msg")
+    doc.custom_city = args.get("custom_city")
+    
+    land_rows = args.get("custom_land_details") 
+    if land_rows:
+        for row in land_rows:
+            doc.append("custom_land_details", {
+                "land_id": row.get("land_id"),
+                "land_name": row.get("land_name"),
+                "area": row.get("area")
+            })
+            
     doc.insert(ignore_permissions=True)
+    frappe.db.commit()
     return doc.name
 
 
@@ -88,4 +101,3 @@ def update_crm_doc(doc_id, name1=None):
         doc.type1 = type1
     doc.save()
     return doc.name
-	
