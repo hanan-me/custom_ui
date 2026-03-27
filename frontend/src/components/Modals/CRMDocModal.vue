@@ -3,11 +3,12 @@
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
-          <div>
-            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
-              {{ __('Create CRM Doc') }}
-            </h3>
-          </div>
+          <h3 class="text-2xl font-semibold text-ink-gray-9">
+            {{ __('Create CRM Doc') }}
+          </h3>
+          <Button variant="ghost" class="w-7" @click="show = false">
+            <FeatherIcon name="x" class="h-4 w-4" />
+          </Button>
         </div>
 
         <!-- Dynamic Fields -->
