@@ -75,6 +75,12 @@ import { useDocument } from '@/data/document'
 import { computed, onMounted, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
+const session = sessionStore()
+
+const isManager = computed(() => {
+  return session.user?.roles?.includes('System Manager')
+})
+  
 const show = defineModel()
 const router = useRouter()
 
