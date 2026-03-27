@@ -10,7 +10,6 @@
           </div>
           <div class="flex items-center gap-1">
             <Button
-              v-if="isManager && !isMobileView"
               variant="ghost"
               class="w-7"
               @click="openQuickEntryModal"
