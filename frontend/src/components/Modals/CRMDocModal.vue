@@ -3,12 +3,24 @@
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
-          <h3 class="text-2xl font-semibold text-ink-gray-9">
-            {{ __('Create CRM Doc') }}
-          </h3>
-          <Button variant="ghost" class="w-7" @click="show = false">
-            <FeatherIcon name="x" class="h-4 w-4" />
-          </Button>
+          <div>
+            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
+              {{ __('Create CRM Doc') }}
+            </h3>
+          </div>
+          <div class="flex items-center gap-1">
+            <Button
+              v-if="isManager() && !isMobileView"
+              variant="ghost"
+              class="w-7"
+              @click="openQuickEntryModal"
+            >
+              <EditIcon class="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" class="w-7" @click="show = false">
+              <FeatherIcon name="x" class="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         <!-- Dynamic Fields -->
