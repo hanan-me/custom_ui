@@ -3,7 +3,6 @@
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
-          <!-- New Code for Edit Icon -->
           <div>
             <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
               {{ __('Create CRM Doc') }}
@@ -22,7 +21,6 @@
             </Button>
           </div>
         </div>
-        <!-- END -->
 
         <!-- Dynamic Fields -->
         <FieldLayout
@@ -51,31 +49,18 @@
 
 
 <script setup>
-// import EditIcon from '@/components/Icons/EditIcon.vue'
-// import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
-// import { usersStore } from '@/stores/users'
-// import { statusesStore } from '@/stores/statuses'
-// import { isMobileView } from '@/composables/settings'
-// import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
-// import { useDocument } from '@/data/document'
-// import { capture } from '@/telemetry'
-// import { Switch, createResource } from 'frappe-ui'
-// import { computed, ref, onMounted, nextTick, watch } from 'vue'
-// import { useRouter } from 'vue-router'
-
-// New Code for Edit Icon 
 import EditIcon from '@/components/Icons/EditIcon.vue'
+import { sessionStore } from '@/stores/session'
+import { useOnboarding } from 'frappe-ui/frappe'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
-import { sessionStore } from '@/stores/session'
 import { isMobileView } from '@/composables/settings'
 import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
-import { capture } from '@/telemetry'
-import { createResource } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
 import { useDocument } from '@/data/document'
-import { computed, onMounted, ref, nextTick } from 'vue'
+import { capture } from '@/telemetry'
+import { Switch, createResource } from 'frappe-ui'
+import { computed, ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const session = sessionStore()
@@ -84,8 +69,6 @@ const isManager = computed(() => {
   return session.user?.roles?.includes('System Manager')
 })
 
- // END 
-  
 const show = defineModel()
 const router = useRouter()
 
@@ -113,7 +96,10 @@ function createDoc() {
       args: {
         id: doc.doc.id,
         name1: doc.doc.name1,
-        type1:doc.doc.type1
+        type1:doc.doc.type1,
+        address:doc.doc.address,
+        city:doc.doc.city,
+        items: doc.doc.items,
       },
     },
     auto: true,
@@ -138,17 +124,26 @@ function createDoc() {
   })
 }
 
-// New Code for Edit Icon   
-function openQuickEntryModal() {
-  showQuickEntryModal.value = true
-  quickEntryProps.value = { doctype: 'CRM Doc' }  // 👈 your doctype
-  nextTick(() => (show.value = false))
-}
-// END  
 
 onMounted(() => {
-  doc.doc = {}
+  resetDoc()
 })
 
+function openQuickEntryModal() {
+  resetDoc()
+  showQuickEntryModal.value = true
+  quickEntryProps.value = { doctype: 'CRM Doc' } 
+  nextTick(() => (show.value = false))
+}
 
+function resetDoc() {
+  doc.doc = {
+    items: [],  // initialize child table
+    address: '',
+    city: '',
+    id: '',
+    name1: '',
+    type1: '',
+  }
+}
 </script>
