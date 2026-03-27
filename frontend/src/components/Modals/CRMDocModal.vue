@@ -99,7 +99,7 @@ function createDoc() {
         type1:doc.doc.type1,
         address:doc.doc.address,
         city:doc.doc.city,
-        items: doc.doc.items,
+        item: doc.doc.item,
       },
     },
     auto: true,
@@ -138,7 +138,7 @@ function openQuickEntryModal() {
 
 function resetDoc() {
   doc.doc = {
-    items: [],  // initialize child table
+    item: [],  // initialize child table
     address: '',
     city: '',
     id: '',
