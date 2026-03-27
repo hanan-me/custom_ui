@@ -1,0 +1,91 @@
+# Copyright (c) 2026, Frappe Technologies Pvt. Ltd. and contributors
+# For license information, please see license.txt
+
+import frappe
+from frappe import _
+from frappe.model.document import Document
+
+
+class CRMDoc(Document):
+
+    def validate(self):
+    	if self.id:
+        	existing = frappe.db.exists("CRM Doc", {"id": self.id})
+        
+        	if existing and existing != self.name:
+            		frappe.throw(f"ID '{self.id}' already exists")
+
+    def before_save(self):
+        # Optional: trim whitespace from name1
+        if self.name1:
+            self.name1 = self.name1.strip()
+            
+    @staticmethod
+    def default_list_data():
+        
+        columns = [
+            {
+                "label": "ID",
+                "type": "Data",
+                "key": "id",
+                #"width": "15rem",
+            },
+            {
+                "label": "Name",
+                "type": "Data",
+                "key": "name1",
+                #"width": "25rem",
+            },
+            {
+		"label": "Last Modified",
+		"type": "Datetime",
+		"key": "modified",
+		#"width": "10rem",
+	    },
+        ]
+
+        # rows = order of fields when displayed in table view
+        rows = ["id", "name1","modified",]
+
+        return {"columns": columns, "rows": rows}
+    
+    @staticmethod
+    def default_kanban_settings():
+        return {
+            "column_field": "id",          # which field defines the Kanban columns
+            "title_field": "name1",        # what to display on the card
+            "kanban_fields": '["id","name1"]'
+        }
+    
+    
+
+
+@frappe.whitelist()
+def create_crm_doc(args):
+    
+    if not args.get("id"):
+        frappe.throw(_("ID is required"))
+
+    doc = frappe.new_doc("CRM Doc")
+    doc.id = args.get("id")
+    doc.name1 = args.get("name1")
+    doc.type1 = args.get("type1")
+    doc.insert(ignore_permissions=True)
+    return doc.name
+
+
+@frappe.whitelist()
+def get_crm_doc(doc_id):
+    return frappe.get_doc("CRM Doc", doc_id).as_dict()
+
+
+@frappe.whitelist()
+def update_crm_doc(doc_id, name1=None):
+    doc = frappe.get_doc("CRM Doc", doc_id)
+    if name1 is not None:
+        doc.name1 = name1
+    if type1 is not None:
+        doc.type1 = type1
+    doc.save()
+    return doc.name
+	
