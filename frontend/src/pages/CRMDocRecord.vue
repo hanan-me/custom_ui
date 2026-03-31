@@ -152,7 +152,6 @@ onMounted(() => {
     crmDoc.fetch()
   } else {
     crmDoc.data = getEmptyDoc()
-    crmDoc.loading = false
     crmDoc.error = null
   }
 })
