@@ -93,7 +93,9 @@ function createDoc() {
   createResource({
     url: 'crm.fcrm.doctype.crm_doc.crm_doc.create_crm_doc',
     params: {
-      doc: doc.doc
+      args:{
+        doc: doc.doc
+      }
     },
     auto: true,
     onSuccess(name) {
