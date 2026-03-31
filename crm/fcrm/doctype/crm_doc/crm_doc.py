@@ -82,19 +82,19 @@ class CRMDoc(Document):
             
 #     doc.insert(ignore_permissions=True)
 @frappe.whitelist()
-def create_crm_doc(args):
-    frappe.throw(f"Raw args: {args}")
- #    args = frappe.parse_json(args)
- #    doc = args.get("doc")
-	# frappe.throw(f"Data : {doc}")
- #    new_doc = frappe.get_doc({
- #        "doctype": "CRM Doc",
- #        **doc
- #    })
+def create_crm_doc():
+    data = frappe.form_dict
 
- #    new_doc.insert()
- #    frappe.db.commit()
- #    return new_doc.name
+    # Optional: remove unwanted keys
+    data.pop("cmd", None)
+
+    new_doc = frappe.get_doc({
+        "doctype": "CRM Doc",
+        **data
+    })
+
+    new_doc.insert()
+    return new_doc.name
 
 
 @frappe.whitelist()
