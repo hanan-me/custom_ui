@@ -85,7 +85,7 @@ class CRMDoc(Document):
 def create_crm_doc(args):
     args = frappe.parse_json(args)
     doc = args.get("doc")
-
+	frappe.throw(f"Data : {doc}")
     new_doc = frappe.get_doc({
         "doctype": "CRM Doc",
         **doc
