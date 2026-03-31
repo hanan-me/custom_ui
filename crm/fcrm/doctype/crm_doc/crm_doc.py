@@ -88,7 +88,7 @@ def create_crm_doc():
 
     # 🔍 What we received
     print("\n=== RECEIVED DATA ===")
-    print(data)
+    frappe.throw(f"data {data}")
 
     # Clean system keys
     data.pop("cmd", None)
