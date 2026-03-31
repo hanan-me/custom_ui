@@ -13,18 +13,21 @@
   <!-- Main -->
   <div v-if="isNewDoc || crmDoc.data" class="flex h-full overflow-hidden flex-col">
 
-    <!-- New label -->
-    <div v-if="isNewDoc" class="p-4 text-lg font-semibold text-gray-600">
-      New Document
-    </div>
-
     <div class="flex flex-1 overflow-hidden">
       <div class="flex-1 p-4 overflow-y-auto">
 
-        <!-- 🔥 KEY FIX HERE -->
+        <!-- 🔥 KEY FIX HERE 
         <DataFields
           doctype="CRM Doc"
           :docname="isNewDoc ? null : crmDoc.data?.name"
+          @afterSave="handleAfterSave"
+        />
+        -->
+
+        <DataFields
+          doctype="CRM Doc"
+          :docname="isNewDoc ? null : crmDoc.data?.name"
+          :key="isNewDoc ? 'new' : crmDoc.data?.name"
           @afterSave="handleAfterSave"
         />
 
@@ -54,6 +57,7 @@ import Icon from '@/components/Icon.vue'
 import DataFields from '@/components/Activities/DataFields.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
+import { useDocument } from '@/data/document'
 
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
@@ -88,6 +92,8 @@ const props = defineProps({
   },
 })
 
+const { document } = useDocument('CRM Doc')
+const newDoc = document.doc
 const isNewDoc = computed(() => props.docId === 'new')
 
 const errorTitle = ref('')
@@ -119,8 +125,9 @@ const crmDoc = createResource({
 /* ---------------------- Lifecycle ---------------------- */
 
 onMounted(() => {
-  // Only fetch if NOT new
-  if (!isNewDoc.value) {
+  if (isNewDoc.value) {
+    newDoc.doc = {}
+  } else {
     crmDoc.fetch()
   }
 })
