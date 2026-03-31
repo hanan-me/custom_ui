@@ -81,6 +81,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 
 const { brand } = getSettings()
+const isNewDoc = computed(() => props.docId === 'new')
 const { $dialog, $socket, makeCall } = globalStore()
 const { doctypeMeta } = getMeta('CRM Doc')
 
@@ -141,9 +142,20 @@ const crmDoc = createResource({
 
 
 // Lifecycle hooks
+// onMounted(() => {
+//   console.log("Route docId:", props.docId)
+//   crmDoc.fetch()
+// })
+
 onMounted(() => {
   console.log("Route docId:", props.docId)
-  crmDoc.fetch()
+
+  if (!isNewDoc.value) {
+    crmDoc.fetch()
+  } else {
+    // Initialize empty doc
+    crmDoc.data = getEmptyDoc()
+  }
 })
 
 
@@ -153,7 +165,32 @@ const showOrganizationModal = ref(false)
 const showFilesUploader = ref(false)
 const _organization = ref({})
 
+
+function getEmptyDoc() {
+  let meta = doctypeMeta['CRM Doc'] || {}
+
+  let emptyDoc = {
+    name: '',
+    fields_meta: meta.fields || {},
+  }
+
+  // initialize empty values for fields
+  if (meta.fields) {
+    meta.fields.forEach(field => {
+      emptyDoc[field.fieldname] = ''
+    })
+  }
+
+  return emptyDoc
+}
+  
 function updateDoc(fieldname, value, callback) {
+  if (isNewDoc.value) {
+  // Just update locally for now
+    crmDoc.data[fieldname] = value
+    callback?.()
+    return
+  }
   value = Array.isArray(fieldname) ? '' : value
 
   if (validateRequired(fieldname, value)) return
@@ -215,9 +252,9 @@ const breadcrumbs = computed(() => {
 
   // Current record
   items.push({
-    label: title.value,
+    label: isNewDoc.value ? 'New CRM Doc' : title.value,
     route: { 
-      name: 'CRMDocID',          // record route name
+      name: 'CRMDocID',
       params: { docId: crmDoc.data?.name } 
     },
   })
@@ -227,10 +264,12 @@ const breadcrumbs = computed(() => {
 
 
 const title = computed(() => {
+  if (isNewDoc.value) return 'New CRM Doc'
+
   let t = doctypeMeta['CRM Doc']?.title_field || 'name'
   return crmDoc.data?.[t] || props.docId
 })
-
+  
 usePageMeta(() => {
   return {
     title: title.value,
