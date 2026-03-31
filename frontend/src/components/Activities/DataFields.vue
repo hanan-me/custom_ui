@@ -1,128 +1,259 @@
 <template>
-  <div
-    class="my-3 flex items-center justify-between text-lg font-medium sm:mb-4 sm:mt-8"
-  >
-    <div class="flex h-8 items-center text-xl font-semibold text-ink-gray-8">
-      {{ __('Data') }}
-      <Badge
-        v-if="document.isDirty"
-        class="ml-3"
-        :label="'Not Saved'"
-        theme="orange"
-      />
+  <LayoutHeader v-if="crmDoc.data">
+    <template #left-header>
+      <Breadcrumbs :items="breadcrumbs">
+        <template #prefix="{ item }">
+          <Icon v-if="item.icon" :icon="item.icon" class="mr-2 h-4" />
+        </template>
+      </Breadcrumbs>
+    </template>
+  </LayoutHeader>
+ 
+  <div v-if="crmDoc.data" class="flex h-full overflow-hidden flex-col">
+  
+    <div v-if="isNew" class="p-4 text-lg font-semibold text-gray-600">
+      New Document
     </div>
-    <div class="flex gap-1">
-      <Button
-        v-if="isManager() && !isMobileView"
-        @click="showDataFieldsModal = true"
-      >
-        <EditIcon class="h-4 w-4" />
-      </Button>
-      <Button
-        label="Save"
-        :disabled="!document.isDirty"
-        variant="solid"
-        :loading="document.save.loading"
-        @click="saveChanges"
-      />
+  
+    <div class="flex flex-1 overflow-hidden">
+      <div class="flex-1 p-4 overflow-y-auto">
+  
+        <DataFields
+          doctype="CRM Doc"
+          :docname="crmDoc.data.name"
+          @afterSave="() => crmDoc.reload()"
+        />
+  
+      </div>
     </div>
+  
   </div>
-  <div
-    v-if="document.get.loading"
-    class="flex flex-1 flex-col items-center justify-center gap-3 text-xl font-medium text-gray-500"
-  >
-    <LoadingIndicator class="h-6 w-6" />
-    <span>{{ __('Loading...') }}</span>
-  </div>
-  <div v-else class="pb-8">
-    <FieldLayout
-      v-if="tabs.data"
-      :tabs="tabs.data"
-      :data="document.doc"
-      :doctype="doctype"
-    />
-  </div>
-  <DataFieldsModal
-    v-if="showDataFieldsModal"
-    v-model="showDataFieldsModal"
-    :doctype="doctype"
-    @reload="
+  <ErrorPage
+    v-else-if="errorTitle"
+    :errorTitle="errorTitle"
+    :errorMessage="errorMessage"
+  />
+  <FilesUploader
+    v-if="crmDoc.data?.name"
+    v-model="showFilesUploader"
+    doctype="CRM Doc"
+    :docname="crmDoc.data.name"
+    @after="
       () => {
-        tabs.reload()
-        document.reload()
+        activities?.all_activities?.reload()
+        changeTabTo('attachments')
       }
     "
   />
 </template>
-
 <script setup>
-import EditIcon from '@/components/Icons/EditIcon.vue'
-import DataFieldsModal from '@/components/Modals/DataFieldsModal.vue'
-import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
-import { Badge, createResource } from 'frappe-ui'
-import LoadingIndicator from '@/components/Icons/LoadingIndicator.vue'
-import { usersStore } from '@/stores/users'
+import ErrorPage from '@/components/ErrorPage.vue'
+import Icon from '@/components/Icon.vue'
+import DataFields from '@/components/Activities/DataFields.vue'
+import ActivityIcon from '@/components/Icons/ActivityIcon.vue'
+import EmailIcon from '@/components/Icons/EmailIcon.vue'
+import CommentIcon from '@/components/Icons/CommentIcon.vue'
+import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
+import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
+import TaskIcon from '@/components/Icons/TaskIcon.vue'
+import NoteIcon from '@/components/Icons/NoteIcon.vue'
+import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
+import SuccessIcon from '@/components/Icons/SuccessIcon.vue'
+import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
+import LayoutHeader from '@/components/LayoutHeader.vue'
+import { openWebsite, setupCustomizations, copyToClipboard } from '@/utils'
+import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
+import { getView } from '@/utils/view'
+import { getSettings } from '@/stores/settings'
+import { globalStore } from '@/stores/global'
+import { getMeta } from '@/stores/meta'
 import { useDocument } from '@/data/document'
-import { isMobileView } from '@/composables/settings'
-import { ref, watch } from 'vue'
+import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import {
+  createResource,
+  Breadcrumbs,
+  call,
+  usePageMeta,
+  toast,
+} from 'frappe-ui'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useActiveTabManager } from '@/composables/useActiveTabManager'
+
+const { brand } = getSettings()
+const isNew = computed(() => props.docId === 'new')
+const { $dialog, $socket, makeCall } = globalStore()
+const { doctypeMeta } = getMeta('CRM Doc')
+
+const { updateOnboardingStep, isOnboardingStepsCompleted } =
+  useOnboarding('frappecrm')
+
+const route = useRoute()
+const router = useRouter()
 
 const props = defineProps({
-  doctype: {
-    type: String,
-    required: true,
-  },
-  docname: {
+  docId: {
     type: String,
     required: true,
   },
 })
 
-const emit = defineEmits(['afterSave'])
+const errorTitle = ref('')
+const errorMessage = ref('')
 
-const { isManager } = usersStore()
+// Main CRM Doc resource
+const crmDoc = createResource({
+  url: 'crm.fcrm.doctype.crm_doc.api.get_doc',
+  params: { name: props.docId },
+  cache: ['crmDoc', props.docId],
 
-const showDataFieldsModal = ref(false)
+  onSuccess: (data) => {
+    errorTitle.value = ''
+    errorMessage.value = ''
+    console.log("create resource called", data)
+    console.log("Doc Name from API:", data.name)
 
-const { document } = useDocument(props.doctype, props.docname)
+    // Customizations, modals, sockets, etc.
+    setupCustomizations(crmDoc, {
+      doc: data,
+      $dialog,
+      $socket,
+      router,
+      toast,
+      updateField,
+      createToast: toast.create,
+      deleteDoc: deleteDoc,
+      resource: {
+        crmDoc,
+      },
+      call,
+    })
+  },
 
-const tabs = createResource({
-  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
-  cache: ['DataFields', props.doctype],
-  params: { doctype: props.doctype, type: 'Data Fields' },
-  auto: true,
-})
-
-function saveChanges() {
-  if (!document.isDirty) return
-
-  const updatedDoc = { ...document.doc }
-  const oldDoc = { ...document.originalDoc }
-
-  const changes = Object.keys(updatedDoc).reduce((acc, key) => {
-    if (JSON.stringify(updatedDoc[key]) !== JSON.stringify(oldDoc[key])) {
-      acc[key] = updatedDoc[key]
+  onError: (err) => {
+    if (err.messages?.[0]) {
+      errorTitle.value = __('Not permitted')
+      errorMessage.value = __(err.messages?.[0])
+    } else {
+      router.push({ name: 'CRM Doc' })
     }
-    return acc
-  }, {})
+  },
+})
 
-  document.save.submit(null, {
-    onSuccess: () => emit('afterSave', changes),
+
+// Lifecycle hooks
+onMounted(() => {
+  console.log("Route docId:", props.docId)
+  crmDoc.fetch()
+})
+
+
+
+const reload = ref(false)
+const showOrganizationModal = ref(false)
+const showFilesUploader = ref(false)
+const _organization = ref({})
+
+function updateDoc(fieldname, value, callback) {
+  value = Array.isArray(fieldname) ? '' : value
+
+  if (validateRequired(fieldname, value)) return
+
+  createResource({
+    url: 'frappe.client.set_value',
+    params: {
+      doctype: 'CRM Doc',
+      name: props.docId,
+      fieldname,
+      value,
+    },
+    auto: true,
+    onSuccess: () => {
+      crmDoc.reload()
+      reload.value = true
+      toast.success(__('Doc updated'))
+      callback?.()
+    },
+    onError: (err) => {
+      toast.error(__('Error updating doc: {0}', [err.messages?.[0]]))
+    },
   })
 }
 
-watch(
-  () => document.doc,
-  (newValue, oldValue) => {
-    if (!oldValue) return
-    if (newValue && oldValue) {
-      const isDirty =
-        JSON.stringify(newValue) !== JSON.stringify(document.originalDoc)
-      document.isDirty = isDirty
-      if (isDirty) {
-        document.save.loading = false
-      }
+function validateRequired(fieldname, value) {
+  let meta = crmDoc.data.fields_meta || {}
+  if (meta[fieldname]?.reqd && !value) {
+    toast.error(__('{0} is a required field', [meta[fieldname].label]))
+    return true
+  }
+  return false
+}
+
+const breadcrumbs = computed(() => {
+  // Top level: CRM Doc list
+  let items = [
+    { 
+      label: __('CRM Doc'), 
+      route: { name: 'CRM Doc' }  // list view route name
     }
-  },
-  { deep: true },
-)
+  ]
+
+  // Optional view (kanban, table, etc.)
+  if (route.query.view || route.query.viewType) {
+    let view = getView(route.query.view, route.query.viewType, 'CRM Doc')
+    if (view) {
+      items.push({
+        label: __(view.label),
+        icon: view.icon,
+        route: {
+          name: 'CRM Doc',
+          params: { viewType: route.query.viewType },
+          query: { view: route.query.view },
+        },
+      })
+    }
+  }
+
+  // Current record
+  items.push({
+    label: title.value,
+    route: { 
+      name: 'CRMDocID',          // record route name
+      params: { docId: crmDoc.data?.name } 
+    },
+  })
+
+  return items
+})
+
+
+const title = computed(() => {
+  let t = doctypeMeta['CRM Doc']?.title_field || 'name'
+  return crmDoc.data?.[t] || props.docId
+})
+
+usePageMeta(() => {
+  return {
+    title: title.value,
+    icon: brand.favicon,
+  }
+})
+
+
+function updateField(name, value, callback) {
+  updateDoc(name, value, () => {
+    crmDoc.data[name] = value
+    callback?.()
+  })
+}
+
+async function deleteDoc(name) {
+  await call('frappe.client.delete', {
+    doctype: 'CRM Doc',
+    name,
+  })
+  router.push({ name: 'CRM Doc' })
+}
+
 </script>
