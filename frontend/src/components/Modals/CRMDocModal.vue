@@ -41,6 +41,11 @@
             :loading="loading"
             @click="createDoc"
           />
+          <Button
+            variant="ghost"
+            :label="__('Edit Full Form')"
+            @click="openFullForm"
+          />
         </div>
       </div>
     </template>
@@ -124,6 +129,13 @@ onMounted(() => {
   resetDoc()
 })
 
+function openFullForm() {
+  router.push({
+    path: `/crm/doc/${doc?.name || 'new'}`,
+    query: { mode: 'edit' }
+  })
+}
+  
 function openQuickEntryModal() {
   resetDoc()
   showQuickEntryModal.value = true
