@@ -91,9 +91,7 @@ function createDoc() {
     url: 'crm.fcrm.doctype.crm_doc.crm_doc.create_crm_doc',
     params: {
       args: {
-        id: doc.doc.id,
-        name1: doc.doc.name1,
-        type1:doc.doc.type1
+        doc:doc
       },
     },
     auto: true,
