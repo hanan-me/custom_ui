@@ -24,7 +24,7 @@
         <!-- 🔥 KEY FIX HERE -->
         <DataFields
           doctype="CRM Doc"
-          :docname="isNewDoc ? 'new' : crmDoc.data.name"
+          :docname="isNewDoc ? null : crmDoc.data?.name"
           @afterSave="handleAfterSave"
         />
 
