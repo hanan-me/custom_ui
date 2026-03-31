@@ -148,13 +148,12 @@ const crmDoc = createResource({
 // })
 
 onMounted(() => {
-  console.log("Route docId:", props.docId)
-
   if (!isNewDoc.value) {
     crmDoc.fetch()
   } else {
-    // Initialize empty doc
     crmDoc.data = getEmptyDoc()
+    crmDoc.loading = false
+    crmDoc.error = null
   }
 })
 
@@ -186,7 +185,6 @@ function getEmptyDoc() {
   
 function updateDoc(fieldname, value, callback) {
   if (isNewDoc.value) {
-  // Just update locally for now
     crmDoc.data[fieldname] = value
     callback?.()
     return
@@ -250,13 +248,14 @@ const breadcrumbs = computed(() => {
     }
   }
 
-  // Current record
   items.push({
     label: isNewDoc.value ? 'New CRM Doc' : title.value,
-    route: { 
-      name: 'CRMDocID',
-      params: { docId: crmDoc.data?.name } 
-    },
+    route: isNewDoc.value
+      ? undefined
+      : { 
+          name: 'CRMDocID',
+          params: { docId: crmDoc.data?.name } 
+        },
   })
 
   return items
