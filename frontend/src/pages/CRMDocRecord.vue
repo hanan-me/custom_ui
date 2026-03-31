@@ -1,5 +1,5 @@
 <template>
-  <LayoutHeader v-if="crmDoc.data">
+  <LayoutHeader v-if="isNew || crmDoc.data">
     <template #left-header>
       <Breadcrumbs :items="breadcrumbs">
         <template #prefix="{ item }">
@@ -8,23 +8,26 @@
       </Breadcrumbs>
     </template>
   </LayoutHeader>
-  <div v-if="crmDoc.data" class="flex h-full overflow-hidden">
+
+  <div v-if="isNew || crmDoc.data" class="flex h-full overflow-hidden">
     <div class="flex-1 p-4 overflow-y-auto">
 
       <DataFields
         doctype="CRM Doc"
-        :docname="crmDoc.data.name"
+        :docname="isNew ? null : crmDoc.data.name"
+        :editMode="isNew || isEditMode"
         @afterSave="() => crmDoc.reload()"
       />
 
-    </div>  
-    
+    </div>
   </div>
+
   <ErrorPage
     v-else-if="errorTitle"
     :errorTitle="errorTitle"
     :errorMessage="errorMessage"
   />
+
   <FilesUploader
     v-if="crmDoc.data?.name"
     v-model="showFilesUploader"
@@ -38,29 +41,19 @@
     "
   />
 </template>
+
 <script setup>
 import ErrorPage from '@/components/ErrorPage.vue'
 import Icon from '@/components/Icon.vue'
 import DataFields from '@/components/Activities/DataFields.vue'
-import ActivityIcon from '@/components/Icons/ActivityIcon.vue'
-import EmailIcon from '@/components/Icons/EmailIcon.vue'
-import CommentIcon from '@/components/Icons/CommentIcon.vue'
-import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
-import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
-import TaskIcon from '@/components/Icons/TaskIcon.vue'
-import NoteIcon from '@/components/Icons/NoteIcon.vue'
-import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
-import SuccessIcon from '@/components/Icons/SuccessIcon.vue'
-import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
-import { openWebsite, setupCustomizations, copyToClipboard } from '@/utils'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
+
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
 import { getMeta } from '@/stores/meta'
-import { useDocument } from '@/data/document'
-import { whatsappEnabled, callEnabled } from '@/composables/settings'
+
 import {
   createResource,
   Breadcrumbs,
@@ -68,17 +61,13 @@ import {
   usePageMeta,
   toast,
 } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
-import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
+
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useActiveTabManager } from '@/composables/useActiveTabManager'
 
 const { brand } = getSettings()
-const { $dialog, $socket, makeCall } = globalStore()
+const { $dialog, $socket } = globalStore()
 const { doctypeMeta } = getMeta('CRM Doc')
-
-const { updateOnboardingStep, isOnboardingStepsCompleted } =
-  useOnboarding('frappecrm')
 
 const route = useRoute()
 const router = useRouter()
@@ -93,19 +82,28 @@ const props = defineProps({
 const errorTitle = ref('')
 const errorMessage = ref('')
 
-// Main CRM Doc resource
+/* ---------------------------
+   MODE DETECTION
+----------------------------*/
+const isNew = computed(() => props.docId === 'new')
+const isEditMode = computed(() => route.query.mode === 'edit')
+
+/* ---------------------------
+   DOC RESOURCE
+----------------------------*/
 const crmDoc = createResource({
   url: 'crm.fcrm.doctype.crm_doc.api.get_doc',
-  params: { name: props.docId },
-  cache: ['crmDoc', props.docId],
+
+  params: () => ({
+    name: isNew.value ? '' : props.docId,
+  }),
+
+  cache: () => ['crmDoc', props.docId],
 
   onSuccess: (data) => {
     errorTitle.value = ''
     errorMessage.value = ''
-    console.log("create resource called", data)
-    console.log("Doc Name from API:", data.name)
 
-    // Customizations, modals, sockets, etc.
     setupCustomizations(crmDoc, {
       doc: data,
       $dialog,
@@ -114,43 +112,33 @@ const crmDoc = createResource({
       toast,
       updateField,
       createToast: toast.create,
-      deleteDoc: deleteDoc,
-      resource: {
-        crmDoc,
-      },
+      deleteDoc,
+      resource: { crmDoc },
       call,
     })
   },
 
   onError: (err) => {
-    if (err.messages?.[0]) {
-      errorTitle.value = __('Not permitted')
-      errorMessage.value = __(err.messages?.[0])
-    } else {
-      router.push({ name: 'CRM Doc' })
-    }
+    errorTitle.value = __('Not permitted')
+    errorMessage.value = __(err.messages?.[0] || '')
   },
 })
 
-
-// Lifecycle hooks
+/* ---------------------------
+   LIFECYCLE
+----------------------------*/
 onMounted(() => {
   console.log("Route docId:", props.docId)
-  crmDoc.fetch()
+
+  if (!isNew.value) {
+    crmDoc.fetch()
+  }
 })
 
-
-
-const reload = ref(false)
-const showOrganizationModal = ref(false)
-const showFilesUploader = ref(false)
-const _organization = ref({})
-
+/* ---------------------------
+   UPDATE FIELD
+----------------------------*/
 function updateDoc(fieldname, value, callback) {
-  value = Array.isArray(fieldname) ? '' : value
-
-  if (validateRequired(fieldname, value)) return
-
   createResource({
     url: 'frappe.client.set_value',
     params: {
@@ -162,7 +150,6 @@ function updateDoc(fieldname, value, callback) {
     auto: true,
     onSuccess: () => {
       crmDoc.reload()
-      reload.value = true
       toast.success(__('Doc updated'))
       callback?.()
     },
@@ -172,73 +159,16 @@ function updateDoc(fieldname, value, callback) {
   })
 }
 
-function validateRequired(fieldname, value) {
-  let meta = crmDoc.data.fields_meta || {}
-  if (meta[fieldname]?.reqd && !value) {
-    toast.error(__('{0} is a required field', [meta[fieldname].label]))
-    return true
-  }
-  return false
-}
-
-const breadcrumbs = computed(() => {
-  // Top level: CRM Doc list
-  let items = [
-    { 
-      label: __('CRM Doc'), 
-      route: { name: 'CRM Doc' }  // list view route name
-    }
-  ]
-
-  // Optional view (kanban, table, etc.)
-  if (route.query.view || route.query.viewType) {
-    let view = getView(route.query.view, route.query.viewType, 'CRM Doc')
-    if (view) {
-      items.push({
-        label: __(view.label),
-        icon: view.icon,
-        route: {
-          name: 'CRM Doc',
-          params: { viewType: route.query.viewType },
-          query: { view: route.query.view },
-        },
-      })
-    }
-  }
-
-  // Current record
-  items.push({
-    label: title.value,
-    route: { 
-      name: 'CRMDocID',          // record route name
-      params: { docId: crmDoc.data?.name } 
-    },
-  })
-
-  return items
-})
-
-
-const title = computed(() => {
-  let t = doctypeMeta['CRM Doc']?.title_field || 'name'
-  return crmDoc.data?.[t] || props.docId
-})
-
-usePageMeta(() => {
-  return {
-    title: title.value,
-    icon: brand.favicon,
-  }
-})
-
-
 function updateField(name, value, callback) {
   updateDoc(name, value, () => {
-    crmDoc.data[name] = value
+    if (crmDoc.data) crmDoc.data[name] = value
     callback?.()
   })
 }
 
+/* ---------------------------
+   DELETE
+----------------------------*/
 async function deleteDoc(name) {
   await call('frappe.client.delete', {
     doctype: 'CRM Doc',
@@ -247,4 +177,54 @@ async function deleteDoc(name) {
   router.push({ name: 'CRM Doc' })
 }
 
+/* ---------------------------
+   RESET (NEW MODE)
+----------------------------*/
+function resetDoc() {
+  crmDoc.data = {
+    item: [],
+    address: '',
+    city: '',
+    id: '',
+    name1: '',
+    type1: '',
+  }
+}
+
+/* ---------------------------
+   BREADCRUMBS
+----------------------------*/
+const breadcrumbs = computed(() => {
+  let items = [
+    {
+      label: __('CRM Doc'),
+      route: { name: 'CRM Doc' }
+    }
+  ]
+
+  items.push({
+    label: isNew.value ? __('New') : (crmDoc.data?.name || props.docId),
+    route: {
+      name: 'CRMDocID',
+      params: {
+        docId: isNew.value ? 'new' : crmDoc.data?.name
+      }
+    }
+  })
+
+  return items
+})
+
+/* ---------------------------
+   TITLE
+----------------------------*/
+const title = computed(() => {
+  let t = doctypeMeta['CRM Doc']?.title_field || 'name'
+  return crmDoc.data?.[t] || props.docId
+})
+
+usePageMeta(() => ({
+  title: title.value,
+  icon: brand.favicon,
+}))
 </script>
