@@ -82,8 +82,9 @@ class CRMDoc(Document):
 #             })
             
 #     doc.insert(ignore_permissions=True)
-def create_crm_doc(doc):
-    doc = frappe.parse_json(doc)
+def create_crm_doc(args):
+    args = frappe.parse_json(args)
+    doc = args.get("doc")
 
     new_doc = frappe.get_doc({
         "doctype": "CRM Doc",
