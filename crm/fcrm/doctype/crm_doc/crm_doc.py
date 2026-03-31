@@ -84,7 +84,8 @@ class CRMDoc(Document):
 @frappe.whitelist()
 def create_crm_doc():
     data = frappe.form_dict
-
+	print("\n=== RECEIVED DATA ===")
+    print(data)
     # Optional: remove unwanted keys
     data.pop("cmd", None)
 
