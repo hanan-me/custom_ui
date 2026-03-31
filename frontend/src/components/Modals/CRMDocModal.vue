@@ -131,8 +131,13 @@ onMounted(() => {
 
 function openFullForm() {
   router.push({
-    path: `/crm/doc/${doc.doc?.name || 'new'}`,
-    query: { mode: 'edit' }
+    name: 'CRMDocID',
+    params: {
+      docId: doc.doc?.name || 'new'
+    },
+    query: {
+      mode: 'edit'
+    }
   })
 }
   
