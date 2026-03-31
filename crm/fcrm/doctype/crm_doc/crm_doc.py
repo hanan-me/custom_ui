@@ -85,17 +85,11 @@ class CRMDoc(Document):
 @frappe.whitelist()
 def create_crm_doc():
     data = frappe.form_dict
-
-    # 🔍 What we received
-    print("\n=== RECEIVED DATA ===")
-    frappe.throw(f"data {data}")
-
-    # Clean system keys
-    data.pop("cmd", None)
+	args = data.get("args", {})
 
     new_doc = frappe.get_doc({
         "doctype": "CRM Doc",
-        **data
+        **args
     })
 
     new_doc.insert()
