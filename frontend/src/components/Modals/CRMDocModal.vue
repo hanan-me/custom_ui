@@ -123,9 +123,6 @@ function openFullForm() {
     name: 'CRMDocID',
     params: {
       docId: doc.doc?.name || 'new'
-    },
-    query: {
-      mode: 'edit'
     }
   })
 }
