@@ -19,14 +19,6 @@
         doctype="docType"
       />
 
-      <!-- Dynamic Fields
-      <FieldLayout
-        v-if="fields?.length"
-        :fields="fields"
-        :data="doc.doc"
-        doctype="CRM Doc"
-      />  -->
-
       <ErrorMessage v-if="error" class="mt-4" :message="error" />
     </div>
 
@@ -58,9 +50,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const docType = 'Sales Invoice'
-const { getFields } = getMeta('CRM Doc')
-const fields = computed(() => getFields())
+const docType = 'CRM Doc'
+
 
 const error = ref(null)
 const loading = ref(false)
@@ -76,7 +67,6 @@ const tabs = createResource({
   auto: true,
 })
 
-console.log('Fields Meta : ',fields)
 console.log('Tabs Meta : ',tabs)
 // Create Doc
 function createDoc() {
