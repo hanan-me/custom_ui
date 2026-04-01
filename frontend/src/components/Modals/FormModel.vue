@@ -53,7 +53,7 @@ import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import { useDocument } from '@/data/document'
 import { createResource } from 'frappe-ui'
 import { getMeta } from '@/stores/meta'
-import { ref, compute, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
