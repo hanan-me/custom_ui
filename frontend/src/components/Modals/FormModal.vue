@@ -81,6 +81,7 @@ function createDoc() {
   createResource({
     url: 'crm.fcrm.doctype.crm_doc.crm_doc.create_crm_doc',
     params: {
+      doctype:props.doctype,
       args: {
         doc: doc.doc
       },
