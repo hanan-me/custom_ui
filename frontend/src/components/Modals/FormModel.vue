@@ -59,6 +59,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const { getFields } = getMeta('CRM Doc')
 const fields = computed(() => getFields())
+console.log('Fields Meta : ',fields)
 const error = ref(null)
 const loading = ref(false)
 
