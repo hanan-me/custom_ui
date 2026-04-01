@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestCrmDoc(FrappeTestCase):
+class TestCity(FrappeTestCase):
 	pass

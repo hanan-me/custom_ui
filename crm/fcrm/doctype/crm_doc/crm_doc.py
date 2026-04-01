@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 
 
-class CRMDoc(Document):
+class CrmDoc(Document):
 
     def validate(self):
     	if self.id:
