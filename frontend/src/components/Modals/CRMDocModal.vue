@@ -81,7 +81,7 @@ const tabs = createResource({
   params: { doctype: 'CRM Doc', type: 'Quick Entry' },
   auto: true,
 })
-
+console.log("Tabs : ",tabs)
 function createDoc() {
   error.value = null
 
