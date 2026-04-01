@@ -57,8 +57,6 @@ class CRMDoc(Document):
             "kanban_fields": '["id","name1"]'
         }
     
-    
-
 
 @frappe.whitelist()
 def create_crm_doc():
@@ -66,7 +64,21 @@ def create_crm_doc():
     data = frappe.form_dict
     args = data.get("args")
 
-    frappe.throw(f"ARGS BEFORE PARSE: {args}")
+    if isinstance(args, str):
+        args = frappe.parse_json(args)
+
+    doc_data = args.get("doc") if args else {}
+    if not doc_data:
+        frappe.throw("No document data received")
+		
+    doc_data = {
+        "doctype": "CRM Doc",
+        **doc_data
+    }
+
+    new_doc = frappe.get_doc(doc_data)
+    new_doc.insert()
+    return new_doc.name
 
 # @frappe.whitelist()
 # def create_crm_doc():
