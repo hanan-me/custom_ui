@@ -87,7 +87,7 @@ def create_crm_doc():
     data = frappe.form_dict
 
     args = data.get("args", {})
-
+	frappe.throw(f"ARGS : {args}")
     if isinstance(args, str):
         args = frappe.parse_json(args)
 
