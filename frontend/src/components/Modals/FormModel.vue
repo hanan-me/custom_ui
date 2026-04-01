@@ -79,7 +79,13 @@ function createDoc() {
     auto: true,
     onSuccess(name) {
       loading.value = false
-      router.push({ name: 'CRM Doc', params: { crmDocId: name } })
+      // router.push({ name: 'CRM Doc', params: { crmDocId: name } })
+      router.push({
+        name: 'CRMDocID',
+        params: {
+          docId: name
+        }
+      })
     },
     onError(err) {
       loading.value = false
