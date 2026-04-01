@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <!-- Dynamic Fields -->
+    <!-- Dynamic Fields
     <FieldLayout
       v-if="tabs.data?.length"
       :tabs="tabs.data"
@@ -20,7 +20,7 @@
     <ErrorMessage v-if="error" class="mt-4" :message="error" />
   </div>
 
-  <!-- Footer Actions -->
+  <!-- Footer Actions
   <div class="px-4 pb-7 pt-4 sm:px-6">
     <div class="flex flex-row-reverse gap-2">
       <Button
@@ -35,7 +35,7 @@
         @click="openFullForm"
       />
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script setup>
