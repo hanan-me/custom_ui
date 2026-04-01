@@ -50,11 +50,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const docType = 'CRM Doc'
-
 
 const error = ref(null)
 const loading = ref(false)
+
+const props = defineProps({
+  doctype: String
+})
+const docType = computed(() => props.doctype)
 
 const { document } = useDocument(docType)
 const doc = document.doc
