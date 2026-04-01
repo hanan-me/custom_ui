@@ -16,7 +16,7 @@
         v-if="tabs.data?.length"
         :tabs="tabs.data"
         :data="doc.doc"
-        doctype="CRM Doc"
+        doctype="docType"
       />
 
       <!-- Dynamic Fields
@@ -58,20 +58,21 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const docType = 'Sales Invoice'
 const { getFields } = getMeta('CRM Doc')
 const fields = computed(() => getFields())
 
 const error = ref(null)
 const loading = ref(false)
 
-const { document } = useDocument('CRM Doc')
+const { document } = useDocument(docType)
 const doc = document.doc
 
 // Fetch Quick Entry Layout
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
-  cache: ['QuickEntry', 'CRM Doc'],
-  params: { doctype: 'CRM Doc', type: 'Quick Entry' },
+  cache: ['QuickEntry', docType],
+  params: { doctype: docType, type: 'Quick Entry' },
   auto: true,
 })
 
