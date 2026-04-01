@@ -11,10 +11,17 @@
         </div>
       </div>
 
-      <!-- Dynamic Fields -->
+      <!-- Dynamic Fields
       <FieldLayout
         v-if="tabs.data?.length"
         :tabs="tabs.data"
+        :data="doc.doc"
+        doctype="CRM Doc"
+      />  -->
+
+      <FieldLayout
+        v-if="fields?.length"
+        :fields="fields"
         :data="doc.doc"
         doctype="CRM Doc"
       />
@@ -45,11 +52,13 @@
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import { useDocument } from '@/data/document'
 import { createResource } from 'frappe-ui'
+import { getMeta } from '@/stores/meta'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
+const { getFields } = getMeta('CRM Doc')
+const fields = computed(() => getFields())
 const error = ref(null)
 const loading = ref(false)
 
