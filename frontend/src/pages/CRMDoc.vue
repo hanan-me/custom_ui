@@ -98,7 +98,7 @@ import { statusesStore } from '@/stores/statuses'
 import { callEnabled } from '@/composables/settings'
 import { formatDate, timeAgo, website, formatTime } from '@/utils'
 import { Tooltip, Avatar, Dropdown } from 'frappe-ui'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ref, reactive, computed, h } from 'vue'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
@@ -109,6 +109,7 @@ const { getOrganization } = organizationsStore()
 const { getDealStatus } = statusesStore()
 
 const route = useRoute()
+const router = useRouter()
 
 const dealsListView = ref(null)
 const showDealModal = ref(false)
@@ -123,7 +124,7 @@ const updatedPageCount = ref(20)
 const viewControls = ref(null)
 
 function goToForm() {
-  route.push({ name: 'RenderForm' })
+  router.push({ name: 'RenderForm' })
 }
   
 function getRow(name, field) {
