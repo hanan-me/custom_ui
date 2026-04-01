@@ -108,6 +108,12 @@ const routes = [
     name: 'Welcome',
     component: () => import('@/pages/Welcome.vue'),
   },
+  // ✅ ADD HERE
+  {
+    path: '/render-form',
+    name: 'RenderForm',
+    component: () => import('@/pages/RenderForm.vue'),
+  },
   {
     path: '/:invalidpath',
     name: 'Invalid Page',
