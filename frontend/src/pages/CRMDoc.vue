@@ -11,7 +11,7 @@
       <Button
         variant="solid"
         :label="__('Create')"
-        @click="showDealModal = true"
+        @click="goToForm"
       >
         <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
       </Button>
@@ -122,6 +122,10 @@ const triggerResize = ref(1)
 const updatedPageCount = ref(20)
 const viewControls = ref(null)
 
+function goToForm() {
+  router.push({ name: 'RenderForm' })
+}
+  
 function getRow(name, field) {
   function getValue(value) {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
