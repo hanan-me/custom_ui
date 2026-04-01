@@ -11,20 +11,21 @@
         </div>
       </div>
 
-      <!-- Dynamic Fields
+      <!-- Dynamic Fields -->
       <FieldLayout
         v-if="tabs.data?.length"
         :tabs="tabs.data"
         :data="doc.doc"
         doctype="CRM Doc"
-      />  -->
+      />
 
+      <!-- Dynamic Fields
       <FieldLayout
         v-if="fields?.length"
         :fields="fields"
         :data="doc.doc"
         doctype="CRM Doc"
-      />
+      />  -->
 
       <ErrorMessage v-if="error" class="mt-4" :message="error" />
     </div>
