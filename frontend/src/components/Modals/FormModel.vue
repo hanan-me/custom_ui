@@ -1,39 +1,42 @@
 <template>
-  <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
-    <!-- Header -->
-    <div class="mb-5 flex items-center justify-between">
-      <div>
-        <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
-          {{ __('Create CRM Doc') }}
-        </h3>
+  <div>
+    <!-- Body -->
+    <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
+      <!-- Header -->
+      <div class="mb-5 flex items-center justify-between">
+        <div>
+          <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
+            {{ __('Create CRM Doc') }}
+          </h3>
+        </div>
       </div>
+
+      <!-- Dynamic Fields -->
+      <FieldLayout
+        v-if="tabs.data?.length"
+        :tabs="tabs.data"
+        :data="doc.doc"
+        doctype="CRM Doc"
+      />
+
+      <ErrorMessage v-if="error" class="mt-4" :message="error" />
     </div>
 
-    <!-- Dynamic Fields -->
-    <FieldLayout
-      v-if="tabs.data?.length"
-      :tabs="tabs.data"
-      :data="doc.doc"
-      doctype="CRM Doc"
-    />
-
-    <ErrorMessage v-if="error" class="mt-4" :message="error" />
-  </div>
-
-  <!-- Footer Actions -->
-  <div class="px-4 pb-7 pt-4 sm:px-6">
-    <div class="flex flex-row-reverse gap-2">
-      <Button
-        variant="solid"
-        :label="__('Create')"
-        :loading="loading"
-        @click="createDoc"
-      />
-      <Button
-        variant="ghost"
-        :label="__('Edit Full Form')"
-        @click="openFullForm"
-      />
+    <!-- Footer -->
+    <div class="px-4 pb-7 pt-4 sm:px-6">
+      <div class="flex flex-row-reverse gap-2">
+        <Button
+          variant="solid"
+          :label="__('Create')"
+          :loading="loading"
+          @click="createDoc"
+        />
+        <Button
+          variant="ghost"
+          :label="__('Edit Full Form')"
+          @click="openFullForm"
+        />
+      </div>
     </div>
   </div>
 </template>
