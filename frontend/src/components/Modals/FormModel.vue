@@ -59,7 +59,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const { getFields } = getMeta('CRM Doc')
 const fields = computed(() => getFields())
-console.log('Fields Meta : ',fields)
+
 const error = ref(null)
 const loading = ref(false)
 
@@ -74,6 +74,8 @@ const tabs = createResource({
   auto: true,
 })
 
+console.log('Fields Meta : ',fields)
+console.log('Tabs Meta : ',tabs)
 // Create Doc
 function createDoc() {
   error.value = null
