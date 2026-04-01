@@ -60,45 +60,31 @@ class CRMDoc(Document):
     
 
 
-# def create_crm_doc(args):
-    
-#     if not args.get("id"):
-#         frappe.throw(_("ID is required"))
-
-#     doc = frappe.new_doc("CRM Doc")
-#     doc.id = args.get("id")
-#     doc.name1 = args.get("name1")
-#     doc.type1 = args.get("type1")
-#     doc.address = args.get("address")
-#     doc.city = args.get("city")
-    
-#     land_rows = args.get("item") 
-#     if land_rows:
-#         for row in land_rows:
-#             doc.append("item", {
-#                 "item": row.get("item"),
-#                 "city": row.get("city"),
-#             })
-            
-#     doc.insert(ignore_permissions=True)
-
 @frappe.whitelist()
 def create_crm_doc():
+
     data = frappe.form_dict
+    args = data.get("args")
 
-    args = data.get("args", {})
-	frappe.throw(f"ARGS : {args}")
-    if isinstance(args, str):
-        args = frappe.parse_json(args)
+    frappe.throw(f"ARGS BEFORE PARSE: {args}")
 
-    new_doc = frappe.get_doc({
-        "doctype": "CRM Doc",
-        **args
-    })
+# @frappe.whitelist()
+# def create_crm_doc():
+#     data = frappe.form_dict
 
-    new_doc.insert()
+#     args = data.get("args", {})
+# 	frappe.throw(f"ARGS : {args}")
+#     if isinstance(args, str):
+#         args = frappe.parse_json(args)
 
-    return new_doc.name
+#     new_doc = frappe.get_doc({
+#         "doctype": "CRM Doc",
+#         **args
+#     })
+
+#     new_doc.insert()
+
+#     return new_doc.name
 
 
 @frappe.whitelist()
