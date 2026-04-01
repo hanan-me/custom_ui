@@ -57,7 +57,9 @@ const loading = ref(false)
 const props = defineProps({
   doctype: String
 })
-const docType = computed(() => props.doctype)
+const docTypeee = computed(() => props.doctype)
+console.log("doctype : ",docTypeee)
+const docType = 'Crm Doc'
 
 const { document } = useDocument(docType)
 const doc = document.doc
