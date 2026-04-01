@@ -123,7 +123,7 @@ const updatedPageCount = ref(20)
 const viewControls = ref(null)
 
 function goToForm() {
-  router.push({ name: 'RenderForm' })
+  route.push({ name: 'RenderForm' })
 }
   
 function getRow(name, field) {
