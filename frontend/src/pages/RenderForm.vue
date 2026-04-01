@@ -22,7 +22,7 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
-import FormModel from '@/components/FormModel.vue'
+import FormModel from '@/components/Modals/FormModal.vue'
 
 const route = useRoute()
 
