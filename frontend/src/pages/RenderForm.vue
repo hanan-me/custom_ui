@@ -1,5 +1,8 @@
 <template>
   <div class="p-4">
+    Form View
+  </div>
+  <div class="p-4">
     <FormModel />
   </div>
 </template>
