@@ -36,7 +36,13 @@ const routes = [
     path: '/crm-doc/view/:viewType?',
     name: 'CRM Doc',
     component: () => import('@/pages/CRMDoc.vue'),
-  },																	   
+  },
+  {
+    alias: '/sales-invoice',
+    path: '/sales-invoice/view/:viewType?',
+    name: 'Sales Invoice',
+    component: () => import('@/pages/SalesInvoice.vue'),
+  },
   {
     path: '/deals/:dealId',
     name: 'Deal',
